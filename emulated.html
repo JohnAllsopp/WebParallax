@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>iOS 7 Homescreen Parallax Effect</title>
+<link rel="stylesheet" type="text/css" href="style.css"  />	
+
+<script>
+	//demo of the iOS 7 Homescreen Parallax effect, using web tech
+	//Detailed article about how it's done at http://www.webdirections.org/blog/parallax
+
+	var oX = 0;
+	var oY = 0;
+	//a calculated offset for the x and y origins
+	//global var to keep it really simple for the demo, I know not ideal!
+
+function orientationChanged() {
+	var originX = oX;
+	var originY = oY;
+	
+	var homescreen = document.querySelector("#homescreen");
+	var device = document.querySelector("#device");
+	
+	//the 'device' is the container for the homescreen, it's used to rotate the homescreen using CSS3 3D transforms
+	
+	var rotationY = document.querySelector("#rotY").value;
+	var rotationX = document.querySelector("#rotX").value;
+	//grab the user's x and y rotation values (used to emulate device rotation)
+	
+	
+	var deviceTransform = "rotateY(" + rotationY + "deg)" + "rotateX(" + rotationX + "deg)";	
+	device.style.webkitTransform = deviceTransform;
+	device.style.transform = deviceTransform;
+	//create a CSS3 3D transform to rotate the device
+
+	var rotYTan = Math.tan(rotationY*(Math.PI/180))
+	var rotXTan = Math.tan(rotationX*(Math.PI/180))
+	//get the rotation X and Y in radians, and then get their tan
+	//Math.tan takes radians, not degrees as the argument
+	 
+	var backgroundDistance = document.querySelector("#distance").value
+	//get the distance of the background from the foreground
+	
+	var shiftImageX = (-1 * rotYTan * backgroundDistance) + oX + "px"
+	var shiftImageY = (1 * rotXTan * backgroundDistance) + oY + "px"
+	//calculate the distance the  to shift the background image x and y
+	//the X and Y seem swapped, but X in device rotation terms is around a line through the middle of  of the screen from left to right, so its correct
+	
+	homescreen.style.backgroundPosition = shiftImageX + " " + shiftImageY;
+	//shift the background image
+}	
+
+
+function changePhoto() {
+	//changes the background photo
+	var photoURL = document.querySelector("#photo").value
+	var homescreen = document.querySelector("#homescreen");
+	homescreen.style.backgroundImage = "url('" + photoURL + "')"
+	getImageDimensions(homescreen.style.backgroundImage)
+}
+
+function setBGImage(imgWidth, imgHeight){
+	//	called when the dimensions of the bg image have been calculated
+	
+	var homescreen = document.querySelector("#homescreen");
+	var device = document.querySelector("#device");
+	var deviceRect = device.getBoundingClientRect();
+	
+	oX = - (imgWidth - deviceRect.width)/2
+	oY = - (imgHeight - deviceRect.height)/2
+	//oX and oY are origin offsets for the background mage
+	//we move the background image half the difference between its width and the width of the element to the left, and half the difference between its height and the height of the element upwards
+	
+	orientationChanged()
+	//adjust the background image for the current device rotation
+}
+
+function getImageDimensions(url) {
+	//get the width and height from the image at the URL
+	
+	var actualImage = new Image();
+	actualImage.src = url.replace(/"/g,"").replace(/url\(|\)$/ig, "");
+
+	actualImage.onload = function() {
+		currentBGImageHeight = this.height;
+		currentBGImageWidth = this.width;
+		setBGImage(this.width, this.height)
+	}
+}
+
+window.addEventListener("load", changePhoto, false)
+//set up the initial image
+
+
+</script>
+</head>
+<body>
+
+<h1>iOS 7 Style Parallax</h1>
+
+<p>An emulation of the iOS 7 Homescreen Parallax effect that appears to create a 3rd dimension, using purely web technologies.</p>
+<p>For a description of how it's done, <a href="http://www.webdirections.org/blog/parallax">see our Article</a>.</p>
+<p>You can also <a href="index.html">see it in action on your phone or tablet</a>, or grab the code on Github.</p>
+
+<section id="container">
+	<section id="device">
+		<section id="homescreen">
+			<figure id="app1">
+				<img src="images/app1.png">
+				<figcaption>App 1</figcaption>	
+			</figure>
+
+		<figure id="app2">
+				<img src="images/app2.png">
+				<figcaption>App 2</figcaption>	
+			</figure>
+
+		<figure id="app3">
+				<img src="images/app3.png">
+				<figcaption>App 3</figcaption>	
+			</figure>
+
+		<figure id="app4">
+				<img src="images/app4.png">
+				<figcaption>App 4</figcaption>	
+			</figure>
+
+		<figure id="app5">
+				<img src="images/app5.png">
+				<figcaption>App 5</figcaption>	
+			</figure>
+
+		<figure id="app6">
+				<img src="images/app6.png">
+				<figcaption>App 6</figcaption>	
+			</figure>
+
+		<figure id="app7">
+				<img src="images/app7.png">
+				<figcaption>App 7</figcaption>	
+			</figure>
+
+		<figure id="app8">
+				<img src="images/app8.png">
+				<figcaption>App 8</figcaption>	
+			</figure>
+
+		<figure id="app9">
+				<img src="images/app9.png">
+				<figcaption>App 9</figcaption>	
+			</figure>
+		
+		</section>
+	</section>
+</section>
+<footer>
+
+<h2>Give it a spin!</h2>
+<p>Change the apparent distance, then rotate the device to see the effect. You can also change photos to see how it works with different types of content</p>
+<p><label for="distance">apparent distance: </label><input type="range" id="distance" onchange="orientationChanged()" min="1" max="100" value="50" step="1"></p>
+<p><label for="rotX">Device rotationX: </label><input type="range" id="rotX" onchange="orientationChanged()" min="-10" max="10" value="1" step="0.01"></p>
+<p><label for="rotY">Device  rotationY: </label><input type="range" id="rotY" onchange="orientationChanged()" min="-20" max="20" value="1" step="0.01"></p>
+<p>
+<label for="photo">Choose a Background Image</label> <select id="photo" onchange="changePhoto()">
+<option value="images/fish.jpg">Fish</option>
+<option value="images/girls540.jpg">Girls</option>
+<option value="images/shadows540.jpg">Shadows</option>
+<option value="images/wds12.jpg">WDS12</option>
+<option value="images/space1.png" selected>Space</option>
+<option value="images/taj.jpg">Taj Mahal</option>
+</select>
+
+</footer>
+</body>
+</html>
